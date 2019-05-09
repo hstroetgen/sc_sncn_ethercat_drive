@@ -762,21 +762,23 @@ void network_drive_service( client interface i_pdo_handler_exchange i_pdo,
              watchdog_error != WATCHDOG_NO_ERROR ||
              inactive_timeout_flag)
         {
+
             update_checklist(checklist, opmode, 1);
             if (torque_control_fault == DEVICE_INTERNAL_CONTINOUS_OVER_CURRENT_NO_1 || watchdog_error == WATCHDOG_OVER_CURRENT_ERROR) {
-                SET_BIT(statusword, SW_FAULT_OVER_CURRENT);
+                statusword = SET_BIT(statusword, SW_FAULT_OVER_CURRENT);
             } else if (torque_control_fault == UNDER_VOLTAGE_NO_1 || watchdog_error == WATCHDOG_OVER_UNDER_VOLTAGE_OVER_TEMP_ERROR) {
-                SET_BIT(statusword, SW_FAULT_UNDER_VOLTAGE);
+                statusword = SET_BIT(statusword, SW_FAULT_UNDER_VOLTAGE);
             } else if (torque_control_fault == OVER_VOLTAGE_NO_1) {
-                SET_BIT(statusword, SW_FAULT_OVER_VOLTAGE);
+                statusword = SET_BIT(statusword, SW_FAULT_OVER_VOLTAGE);
             } else if (torque_control_fault == 99/*OVER_TEMPERATURE*/) {
-                SET_BIT(statusword, SW_FAULT_OVER_TEMPERATURE);
+                statusword = SET_BIT(statusword, SW_FAULT_OVER_TEMPERATURE);
             }
 
             /* Write error code to object dictionary */
             error_code = get_cia402_error_code(torque_control_fault, watchdog_error,
                                                motion_sensor_error, commutation_sensor_error,
                                                motion_control_error, inactive_timeout_flag);
+
             i_co.od_set_object_value(DICT_ERROR_CODE, 0, error_code);
         } else {
             update_checklist(checklist, opmode, 0); //no error
@@ -999,10 +1001,10 @@ void network_drive_service( client interface i_pdo_handler_exchange i_pdo,
                 state = get_next_state(state, checklist, controlword, 0);
 
                 if (state == S_SWITCH_ON_DISABLED) {
-                    CLEAR_BIT(statusword, SW_FAULT_OVER_CURRENT);
-                    CLEAR_BIT(statusword, SW_FAULT_UNDER_VOLTAGE);
-                    CLEAR_BIT(statusword, SW_FAULT_OVER_VOLTAGE);
-                    CLEAR_BIT(statusword, SW_FAULT_OVER_TEMPERATURE);
+                    statusword = CLEAR_BIT(statusword, SW_FAULT_OVER_CURRENT);
+                    statusword = CLEAR_BIT(statusword, SW_FAULT_UNDER_VOLTAGE);
+                    statusword = CLEAR_BIT(statusword, SW_FAULT_OVER_VOLTAGE);
+                    statusword = CLEAR_BIT(statusword, SW_FAULT_OVER_TEMPERATURE);
                 }
                 break;
 
